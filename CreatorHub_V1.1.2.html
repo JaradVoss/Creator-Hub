@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CREATOR HUB</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
+
+  :root {
+    --bg: #0f0f0f;
+    --surface: #181818;
+    --surface2: #222222;
+    --border: #2a2a2a;
+    --border-light: #333333;
+    --text: #e8e6e0;
+    --text-muted: #888880;
+    --text-dim: #555550;
+    --accent: #d4a853;
+    --accent-dim: rgba(212, 168, 83, 0.12);
+    --accent-dim2: rgba(212, 168, 83, 0.06);
+    --green: #4a9e6e;
+    --green-dim: rgba(74, 158, 110, 0.12);
+    --blue: #4a7fa5;
+    --blue-dim: rgba(74, 127, 165, 0.12);
+    --red: #c05a4a;
+    --red-dim: rgba(192, 90, 74, 0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; line-height: 1.65; }
+
+  .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 240px; background: var(--surface); border-right: 1px solid var(--border); padding: 24px 0; z-index: 100; display: flex; flex-direction: column; overflow-y: auto; }
+  .sidebar-brand { padding: 0 20px 24px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+  .sidebar-brand h1 { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 800; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; }
+  .sidebar-brand p { font-size: 11px; color: var(--text-dim); margin-top: 3px; letter-spacing: 0.05em; }
+  .sidebar-label { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); padding: 0 20px; margin-bottom: 6px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 20px; cursor: pointer; transition: background 0.15s; font-size: 13.5px; color: var(--text-muted); border-left: 2px solid transparent; }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: var(--accent-dim2); color: var(--text); border-left-color: var(--accent); }
+  .nav-item .nav-emoji { font-size: 14px; width: 18px; }
+  .nav-divider { height: 1px; background: var(--border); margin: 12px 20px; }
+
+  .main { margin-left: 240px; min-height: 100vh; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .home-hero { background: linear-gradient(135deg, #0f0f0f 0%, #1a1510 50%, #0f0f0f 100%); padding: 80px 64px 60px; border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
+  .home-hero::before { content: ''; position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(212,168,83,0.06) 0%, transparent 70%); pointer-events: none; }
+  .home-tag { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); border: 1px solid rgba(212,168,83,0.3); padding: 4px 10px; border-radius: 2px; margin-bottom: 20px; }
+  .home-hero h1 { font-family: 'Syne', sans-serif; font-size: 52px; font-weight: 800; line-height: 1.05; letter-spacing: -0.02em; color: var(--text); margin-bottom: 16px; }
+  .home-hero h1 span { color: var(--accent); }
+  .home-hero p { font-size: 16px; color: var(--text-muted); max-width: 520px; line-height: 1.6; font-weight: 300; }
+  .home-question { padding: 48px 64px 16px; }
+  .home-question h2 { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 24px; }
+  .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 0 64px 64px; }
+  .entry-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 28px 24px; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+  .entry-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; opacity: 0; transition: opacity 0.2s; }
+  .entry-card.green::before { background: var(--green); }
+  .entry-card.yellow::before { background: var(--accent); }
+  .entry-card.blue::before { background: var(--blue); }
+  .entry-card:hover { border-color: var(--border-light); transform: translateY(-2px); }
+  .entry-card:hover::before { opacity: 1; }
+  .card-emoji { font-size: 28px; margin-bottom: 14px; display: block; }
+  .card-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 8px; letter-spacing: 0.02em; }
+  .card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; font-weight: 300; }
+  .card-topics { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag { font-size: 10px; padding: 3px 8px; border-radius: 2px; font-weight: 500; letter-spacing: 0.05em; }
+  .tag-green { background: var(--green-dim); color: var(--green); }
+  .tag-yellow { background: var(--accent-dim); color: var(--accent); }
+  .tag-blue { background: var(--blue-dim); color: var(--blue); }
+  .card-arrow { position: absolute; bottom: 20px; right: 20px; font-size: 18px; color: var(--text-dim); transition: all 0.2s; }
+  .entry-card:hover .card-arrow { color: var(--text-muted); transform: translateX(3px); }
+
+  .content-header { padding: 56px 64px 40px; border-bottom: 1px solid var(--border); }
+  .breadcrumb { font-size: 12px; color: var(--text-dim); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .breadcrumb span { cursor: pointer; }
+  .breadcrumb span:hover { color: var(--text-muted); }
+  .content-header h1 { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 12px; }
+  .content-header p { font-size: 15px; color: var(--text-muted); max-width: 560px; font-weight: 300; }
+  .content-index { padding: 28px 64px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .content-index span { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); }
+  .index-link { font-size: 12px; color: var(--text-muted); cursor: pointer; padding: 4px 10px; border: 1px solid var(--border); border-radius: 2px; transition: all 0.15s; }
+  .index-link:hover { border-color: var(--accent); color: var(--accent); }
+
+  .sections { padding: 40px 64px; max-width: 820px; }
+  .section { margin-bottom: 8px; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .section-header { display: flex; align-items: center; gap: 12px; padding: 16px 20px; cursor: pointer; background: var(--surface); transition: background 0.15s; user-select: none; }
+  .section-header:hover { background: var(--surface2); }
+  .section-toggle { font-size: 10px; color: var(--text-dim); transition: transform 0.2s; flex-shrink: 0; }
+  .section.open .section-toggle { transform: rotate(90deg); }
+  .section-icon { font-size: 16px; flex-shrink: 0; }
+  .section-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text); flex: 1; }
+  .section-coming { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); background: var(--surface2); border: 1px solid var(--border); padding: 2px 8px; border-radius: 2px; }
+  .section-body { display: none; padding: 24px 28px; border-top: 1px solid var(--border); background: #121212; }
+  .section.open .section-body { display: block; }
+
+  .concept-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 10px; margin-top: 24px; }
+  .concept-title:first-child { margin-top: 0; }
+  p { color: var(--text-muted); margin-bottom: 12px; font-size: 14px; font-weight: 300; }
+  strong { color: var(--text); font-weight: 500; }
+
+  .highlight { background: var(--accent-dim); border-left: 2px solid var(--accent); padding: 12px 16px; border-radius: 0 3px 3px 0; margin: 16px 0; font-size: 14px; color: var(--text); }
+  .highlight-green { background: var(--green-dim); border-left-color: var(--green); }
+  .highlight-blue { background: var(--blue-dim); border-left-color: var(--blue); }
+
+  .niche-note { display: flex; align-items: flex-start; gap: 10px; background: rgba(212, 168, 83, 0.04); border: 1px solid rgba(212, 168, 83, 0.2); border-radius: 3px; padding: 10px 14px; margin: 14px 0; font-size: 12.5px; color: var(--text-muted); }
+  .niche-note-icon { font-size: 13px; flex-shrink: 0; margin-top: 1px; color: var(--accent); }
+
+  .action-block { background: var(--surface2); border: 1px solid var(--border-light); border-radius: 4px; padding: 20px 22px; margin-top: 24px; }
+  .action-header { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+  .action-label { font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); }
+  .action-steps { list-style: none; }
+  .action-steps li { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13.5px; color: var(--text); align-items: flex-start; }
+  .action-steps li:last-child { border-bottom: none; }
+  .step-num { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; color: var(--accent); background: var(--accent-dim); width: 22px; height: 22px; border-radius: 2px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+
+  .divider { height: 1px; background: var(--border); margin: 32px 0; }
+
+  .next-section { padding: 32px 64px 64px; max-width: 820px; }
+  .next-btn { display: inline-flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--border); padding: 16px 24px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+  .next-btn:hover { border-color: var(--accent); background: var(--accent-dim2); }
+  .next-btn-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); display: block; margin-bottom: 3px; }
+  .next-btn-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); }
+  .next-arrow { font-size: 20px; color: var(--text-dim); margin-left: 8px; }
+
+  ul.content-list { list-style: none; margin: 12px 0; }
+  ul.content-list li { font-size: 14px; color: var(--text-muted); padding: 6px 0; padding-left: 16px; position: relative; font-weight: 300; }
+  ul.content-list li::before { content: '—'; position: absolute; left: 0; color: var(--text-dim); }
+
+  .formula { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.05em; color: var(--text); background: var(--surface2); border: 1px solid var(--border-light); padding: 14px 18px; border-radius: 3px; margin: 14px 0; text-align: center; }
+
+  .phase-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 4px 10px; border-radius: 2px; margin-bottom: 8px; }
+  .phase-green { background: var(--green-dim); color: var(--green); }
+  .phase-yellow { background: var(--accent-dim); color: var(--accent); }
+  .phase-blue { background: var(--blue-dim); color: var(--blue); }
+
+  .metrics-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .metric-card { background: var(--surface); border: 1px solid var(--border); padding: 16px; border-radius: 3px; }
+  .metric-name { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
+  .metric-value { font-size: 22px; font-weight: 700; font-family: 'Syne', sans-serif; color: var(--accent); }
+  .metric-desc { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+
+  .recursos-section { padding: 40px 64px; max-width: 820px; }
+  .recursos-group { margin-bottom: 40px; }
+  .recursos-group-title { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .resource-item { display: flex; align-items: flex-start; gap: 14px; padding: 16px 18px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 8px; transition: border-color 0.15s; }
+  .resource-item:hover { border-color: var(--border-light); }
+  .resource-icon { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+  .resource-info { flex: 1; }
+  .resource-name { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .resource-desc { font-size: 12.5px; color: var(--text-muted); font-weight: 300; margin: 0; }
+  .resource-link { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; color: var(--accent); text-decoration: none; border: 1px solid rgba(212,168,83,0.3); padding: 4px 10px; border-radius: 2px; flex-shrink: 0; transition: all 0.15s; margin-top: 2px; }
+  .resource-link:hover { background: var(--accent-dim); }
+  .resource-badge { font-size: 11px; color: var(--text-dim); padding: 4px 10px; border: 1px solid var(--border); border-radius: 2px; flex-shrink: 0; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <h1>Creator Hub</h1>
+    <p>YouTube Edition · v1.1</p>
+  </div>
+
+  <div class="sidebar-label">Inicio</div>
+  <div class="nav-item active" onclick="showPage('home', this)">
+    <span class="nav-emoji">⬜</span>
+    Página principal
+  </div>
+
+  <div class="nav-divider"></div>
+
+  <div class="sidebar-label">¿Dónde estás?</div>
+  <div class="nav-item" onclick="showPage('page1', this)">
+    <span class="nav-emoji">🌱</span>
+    Estoy empezando
+  </div>
+  <div class="nav-item" onclick="showPage('page2', this)">
+    <span class="nav-emoji">🎬</span>
+    Tengo canal, quiero mejorar
+  </div>
+  <div class="nav-item" onclick="showPage('page3', this)">
+    <span class="nav-emoji">📈</span>
+    Quiero crecer y monetizar
+  </div>
+
+  <div class="nav-divider"></div>
+
+  <div class="sidebar-label">Recursos</div>
+  <div class="nav-item" onclick="showPage('recursos', this)">
+    <span class="nav-emoji">📎</span>
+    Recursos y fuentes
+  </div>
+</nav>
+
+<main class="main">
+
+  <!-- HOME -->
+  <div class="page active" id="home">
+    <div class="home-hero">
+      <div class="home-tag">YouTube · Edición 1.1.1</div>
+      <h1>Creator<br><span>Hub</span></h1>
+      <p>Todo lo que necesitas para construir un canal de YouTube que funcione. Sin ruido. Sin teoría vacía. Solo lo probado.</p>
+    </div>
+    <div class="home-question">
+      <h2>¿En qué punto estás ahora mismo?</h2>
+    </div>
+    <div class="cards-grid">
+      <div class="entry-card green" onclick="showPage('page1', document.querySelectorAll('.nav-item')[1])">
+        <span class="card-emoji">🌱</span>
+        <div class="card-title">Estoy empezando</div>
+        <div class="card-desc">No tienes canal o tienes menos de 5 vídeos publicados. Quieres sentar las bases bien desde el principio.</div>
+        <div class="card-topics">
+          <span class="tag tag-green">Nicho</span>
+          <span class="tag tag-green">Audiencia</span>
+          <span class="tag tag-green">Lanzamiento</span>
+          <span class="tag tag-green">Marca personal</span>
+        </div>
+        <div class="card-arrow">→</div>
+      </div>
+      <div class="entry-card yellow" onclick="showPage('page2', document.querySelectorAll('.nav-item')[2])">
+        <span class="card-emoji">🎬</span>
+        <div class="card-title">Tengo canal, quiero mejorar</div>
+        <div class="card-desc">Ya publicas pero no creces como quieres. El problema está en cómo construyes y presentas tus vídeos.</div>
+        <div class="card-topics">
+          <span class="tag tag-yellow">Guiones</span>
+          <span class="tag tag-yellow">Hook</span>
+          <span class="tag tag-yellow">Retención</span>
+          <span class="tag tag-yellow">CTR</span>
+        </div>
+        <div class="card-arrow">→</div>
+      </div>
+      <div class="entry-card blue" onclick="showPage('page3', document.querySelectorAll('.nav-item')[3])">
+        <span class="card-emoji">📈</span>
+        <div class="card-title">Quiero crecer y monetizar</div>
+        <div class="card-desc">Ya tienes base. Ahora necesitas sistema: ideas que exploten, menos errores y monetización real.</div>
+        <div class="card-topics">
+          <span class="tag tag-blue">Video Recipe</span>
+          <span class="tag tag-blue">Fases de crecimiento</span>
+          <span class="tag tag-blue">Monetización</span>
+        </div>
+        <div class="card-arrow">→</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 1 -->
+  <div class="page" id="page1">
+    <div class="content-header">
+      <div class="breadcrumb">
+        <span onclick="showPage('home', document.querySelectorAll('.nav-item')[0])">Creator Hub</span>
+        <span>›</span><span>🌱 Estoy empezando</span>
+      </div>
+      <h1>🌱 Estoy empezando</h1>
+      <p>La estrategia correcta antes de grabar tu primer vídeo. Lo que el 90% de creadores no hace y por lo que fracasan.</p>
+    </div>
+    <div class="content-index">
+      <span>En esta página:</span>
+      <div class="index-link" onclick="openSection('s1-1')">Nicho y audiencia</div>
+      <div class="index-link" onclick="openSection('s1-2')">Diferenciación</div>
+      <div class="index-link" onclick="openSection('s1-3')">El lanzamiento con 4 vídeos</div>
+      <div class="index-link" onclick="openSection('s1-4')">Marca personal</div>
+    </div>
+    <div class="sections">
+
+      <div class="section" id="s1-1">
+        <div class="section-header" onclick="toggleSection('s1-1')">
+          <span class="section-toggle">▶</span><span class="section-icon">🎯</span>
+          <span class="section-title">Nicho y audiencia</span>
+        </div>
+        <div class="section-body">
+          <div class="concept-title">Por qué el nicho importa más de lo que crees</div>
+          <p>El algoritmo no oculta tus vídeos. Lo que ocurre es que <strong>tu audiencia no reacciona</strong>, y entonces el algoritmo no tiene incentivo para distribuirlos. Son la misma cosa.</p>
+          <p>Cuando alguien llega a tu canal tiene <strong>segundos</strong> para decidir si se queda. Si no entiende qué vas a darle, se va. El nicho es la respuesta inmediata a esa pregunta.</p>
+          <div class="highlight"><strong>El algoritmo es tu audiencia.</strong> Si tu vídeo no interesa a quien lo ve, el algoritmo deja de mostrarlo. No es el algoritmo el problema.</div>
+
+          <div class="concept-title">Los dos enfoques y cuál elegir primero</div>
+          <p><strong>Nicho definido:</strong> hablas de un tema concreto. El valor para la audiencia es inmediato y claro. El algoritmo sabe a quién mostrarte. Más difícil de ejecutar, pero mejores resultados al principio.</p>
+          <p><strong>"El nicho eres tú":</strong> mezclas varios intereses de forma coherente. Más personalidad, más diferenciación, pero más difícil de ejecutar cuando empiezas porque la audiencia no entiende qué va a recibir.</p>
+          <div class="highlight highlight-green"><strong>Recomendación para empezar:</strong> empieza con nicho definido. Una vez tengas audiencia fiel, puedes expandir. Primero ganas a una audiencia específica, luego amplías.</div>
+
+          <div class="concept-title">Los tres tipos de valor que puede dar un vídeo</div>
+          <ul class="content-list">
+            <li><strong>Educación</strong> — enseñar algo accionable</li>
+            <li><strong>Inspiración</strong> — motivar a tomar una acción en su vida</li>
+            <li><strong>Entretenimiento</strong> — resolver el aburrimiento</li>
+          </ul>
+          <p>Si tu vídeo no hace ninguna de estas tres cosas, no tiene razón de existir para quien lo ve.</p>
+
+          <div class="concept-title">Los nichos eternos: dónde la gente siempre paga</div>
+          <ul class="content-list">
+            <li><strong>Dinero</strong> — ganar más, invertir, negocios</li>
+            <li><strong>Salud</strong> — física, mental, bienestar</li>
+            <li><strong>Relaciones y estatus</strong> — ligar, imagen, conexión social</li>
+          </ul>
+          <p>Si tu nicho conecta con alguno de estos tres, monetizar será mucho más viable. Si no, necesitarás que la audiencia tenga poder adquisitivo real.</p>
+
+          <div class="concept-title">Las tres audiencias de un canal (el funnel)</div>
+          <p>Los mejores creadores no tienen una audiencia, tienen tres niveles simultáneos.</p>
+          <ul class="content-list">
+            <li><strong>Top of funnel</strong> — cualquiera que quiera ganar dinero / mejorar su salud / etc. Vídeos de máximo alcance</li>
+            <li><strong>Middle of funnel</strong> — alguien con un problema más concreto relacionado con lo que haces</li>
+            <li><strong>Bottom of funnel</strong> — tu cliente ideal. El que compra</li>
+          </ul>
+          <div class="highlight"><strong>El switchpot:</strong> los mejores vídeos son los que interesan a las tres audiencias a la vez. No amplíes tu contenido sin sentido, amplíalo con estrategia. Un vídeo que llega a 100.000 personas con 0.25% de conversión hace más que uno que llega a 1.000 con 4%.</div>
+
+          <div class="action-block">
+            <div class="action-header"><span>⚡</span><span class="action-label">Toma acción</span></div>
+            <ul class="action-steps">
+              <li><span class="step-num">1</span> Escribe 3 temas que te apasionen y en los que tengas conocimiento real</li>
+              <li><span class="step-num">2</span> Para cada tema, identifica: ¿qué problema concreto soluciona? ¿La audiencia tiene dinero para pagarlo?</li>
+              <li><span class="step-num">3</span> Conecta el tema ganador con uno de los tres nichos eternos</li>
+              <li><span class="step-num">4</span> Define tu avatar: una persona específica con nombre, edad, problema concreto. Todo tu contenido le habla a ella → <em style="color:var(--accent)">Plantilla en Recursos</em></li>
+              <li><span class="step-num">5</span> Mapea tus tres audiencias: bottom (tu cliente ideal), middle y top of funnel → <em style="color:var(--accent)">Plantilla en Recursos</em></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="s1-2">
+        <div class="section-header" onclick="toggleSection('s1-2')">
+          <span class="section-toggle">▶</span><span class="section-icon">💡</span>
+          <span class="section-title">Diferenciación: por qué verían tu canal y no otro</span>
+        </div>
+        <div class="section-body">
+          <div class="concept-title">Todo nicho está saturado</div>
+          <p>Si un nicho no está saturado, es porque el mercado es demasiado pequeño o no hay oportunidad real de monetización. La saturación no es el problema. <strong>La falta de diferenciación sí lo es.</strong></p>
+
+          <div class="concept-title">Las cuatro palancas de diferenciación</div>
+          <p><strong>1. Combinación de temas:</strong> en vez de hablar solo de desarrollo personal, hablas de desarrollo personal + filosofía + cinematografía. La intersección crea algo único.</p>
+          <p><strong>2. Formato:</strong> el mismo tema en formato blog, talking head o faceless da canales completamente distintos. El formato es parte de tu identidad.</p>
+          <p><strong>3. Audiencia específica:</strong> fitness para mujeres con lesión de rodilla es diferente a fitness en general. Cuanto más específica la audiencia, menos competencia directa.</p>
+          <p><strong>4. Marca personal:</strong> valores, estética, forma de comunicar, historia. Es la diferenciación más poderosa y la más sostenible a largo plazo.</p>
+
+          <div class="concept-title">El océano azul</div>
+          <p>No compitas en el océano rojo donde todos luchan por lo mismo. Encuentra la intersección donde <strong>tú + tema + audiencia</strong> crea algo que no existe exactamente igual.</p>
+
+          <div class="concept-title">La Video Recipe (tu fórmula)</div>
+          <p>Una combinación consistente de cuatro ingredientes que hace que tus vídeos se reconozcan como tuyos:</p>
+          <ul class="content-list">
+            <li><strong>Audiencia</strong> — para quién es exactamente</li>
+            <li><strong>Valor</strong> — qué gana quien lo ve</li>
+            <li><strong>Formato</strong> — cómo se entrega ese valor</li>
+            <li><strong>Vibe</strong> — qué sensación deja el vídeo</li>
+          </ul>
+          <div class="highlight"><strong>Tu diferenciador real</strong> suele ser una combinación de habilidad única, acceso a algo que otros no tienen, o personalidad. No se copia. Cuanto más lo desarrolles, más difícil es competir contigo.</div>
+
+          <div class="action-block">
+            <div class="action-header"><span>⚡</span><span class="action-label">Toma acción</span></div>
+            <ul class="action-steps">
+              <li><span class="step-num">1</span> Busca 3-5 canales de referencia en tu nicho. Analiza: ¿qué formato usan? ¿A quién se dirigen? ¿Qué no están haciendo?</li>
+              <li><span class="step-num">2</span> Escribe tu Video Recipe: audiencia + valor + formato + vibe</li>
+              <li><span class="step-num">3</span> Identifica tu diferenciador real: ¿qué puedes hacer tú que ellos no pueden replicar fácilmente?</li>
+              <li><span class="step-num">4</span> Prueba 1-3 combinaciones distintas en tus primeros vídeos para ver cuál resuena más</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="s1-3">
+        <div class="section-header" onclick="toggleSection('s1-3')">
+          <span class="section-toggle">▶</span><span class="section-icon">🚀</span>
+          <span class="section-title">El lanzamiento con 4 vídeos</span>
+        </div>
+        <div class="section-body">
+          <div class="concept-title">Por qué no deberías lanzar con 1 solo vídeo</div>
+          <p>La mayoría lanza con un vídeo y espera. Error. El algoritmo necesita datos para saber a quién mostrarte. Con un solo vídeo tiene muy poca información.</p>
+          <div class="highlight highlight-green"><strong>Lanza con 4 vídeos el día 1.</strong> Los canales que lanzan con varios vídeos crecen más rápido en los primeros meses porque el algoritmo tiene más señales desde el principio. Creadores de canales con millones de suscriptores confirman y aplican esta estrategia.</div>
+
+          <div class="concept-title">Por qué funciona</div>
+          <ul class="content-list">
+            <li><strong>Más watch time desde el día 1</strong> — te acerca antes a los requisitos de monetización (1.000 subs + 4.000h)</li>
+            <li><strong>El algoritmo aprende más rápido</strong> — si alguien ve 2-3 de tus vídeos seguidos, YouTube entiende exactamente a quién mostrarte</li>
+            <li><strong>Efecto binge</strong> — al final de cada vídeo, lleva al siguiente. Esa cadena de watch time es una señal muy poderosa</li>
+          </ul>
+
+          <div class="concept-title">Cómo planificar los 4 vídeos</div>
+          <p>Los 4 vídeos juntos tienen que responder: <strong>¿qué es este canal y por qué debería quedarme?</strong></p>
+          <ul class="content-list">
+            <li>Deben tener coherencia temática clara</li>
+            <li>Al final de cada uno, incluye una llamada a acción al siguiente</li>
+            <li>Si alguien ve los 4, debe entender perfectamente qué va a recibir si se suscribe</li>
+          </ul>
+
+          <div class="concept-title">Cómo terminar cada vídeo</div>
+          <p>Al final de cada vídeo tienes dos opciones: apuntar tú directamente al siguiente vídeo lógico, o dejar que YouTube elija automáticamente según el perfil del espectador. Al principio, apunta tú: conoces mejor que el algoritmo qué vídeo tuyo interesa más a quien acaba de ver el anterior. Con el tiempo y suficientes datos, el algoritmo tomará mejores decisiones.</p>
+
+          <div class="concept-title">La duración óptima</div>
+          <p>Los vídeos de <strong>15-20 minutos</strong> tienen el mejor rendimiento en engagement, confianza y monetización según datos actuales. 8 minutos es el mínimo para activar anuncios en medio del vídeo.</p>
+
+          <div class="action-block">
+            <div class="action-header"><span>⚡</span><span class="action-label">Toma acción</span></div>
+            <ul class="action-steps">
+              <li><span class="step-num">1</span> Planifica 4 ideas de vídeo coherentes entre sí que representen bien tu canal</li>
+              <li><span class="step-num">2</span> Escribe el guion de los 4 antes de grabar el primero</li>
+              <li><span class="step-num">3</span> Al final de cada vídeo, incluye una referencia al siguiente: "Si te ha interesado esto, el siguiente vídeo sobre X te va a interesar más"</li>
+              <li><span class="step-num">4</span> Pon una fecha límite de publicación. Sin fecha no hay canal. <span style="color:var(--accent)">Comprométete públicamente.</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="s1-4">
+        <div class="section-header" onclick="toggleSection('s1-4')">
+          <span class="section-toggle">▶</span><span class="section-icon">✦</span>
+          <span class="section-title">Marca personal: los elementos que te hacen reconocible</span>
+        </div>
+        <div class="section-body">
+          <div class="concept-title">Qué es la marca personal y por qué importa</div>
+          <p>La marca personal es lo que permite que dejes de competir por precio, localización o años de experiencia. Empiezas a competir como <em>tú</em>, con una filosofía concreta, y eso reduce tu competencia drásticamente.</p>
+
+          <div class="concept-title">Elementos básicos</div>
+          <p><strong>Valores:</strong> no basta con decir que valoras la honestidad. Tienes que demostrarlo en tu contenido, en tus actos, en tus historias. Con 5 valores bien expresados es suficiente.</p>
+          <p><strong>Rituales:</strong> experiencias repetidas que la audiencia aprende a esperar. Pueden ser un opener, una forma de sentarte, una frase que repites, el lugar donde grabas. Crean familiaridad y expectativa.</p>
+          <p><strong>Iconos:</strong> elementos visuales que la gente asocia contigo. Ropa, objetos, estética de edición. No tienes que inventarlos: identifica qué usas ya en tu vida.</p>
+          <p><strong>Color:</strong> elige 1-2 colores de acento consistentes. El color comunica sin palabras y hace que tus miniaturas se reconozcan de lejos.</p>
+
+          <div class="concept-title">Elementos avanzados</div>
+          <p><strong>Tu historia:</strong> es el elemento más poderoso. Si puedes conectar tu historia personal con lo que haces, generarás confianza a un nivel que ninguna cantidad de información puede replicar. La historia que más funciona es la de transformación: dónde estabas, qué pasó, dónde estás ahora.</p>
+          <p><strong>Lenguaje propio:</strong> palabras o frases que solo tú usas. Crea sentido de pertenencia en tu audiencia. Los mejores creadores tienen términos que sus seguidores adoptan.</p>
+          <p><strong>Personajes recurrentes:</strong> personas de tu vida que aparecen regularmente. Crean líneas narrativas y familiaridad.</p>
+          <div class="highlight"><strong>El error más común:</strong> mezclar elementos que no tienen coherencia entre sí. Una marca de Frankenstein no conecta con nadie. Todo tiene que tener sentido contigo como persona.</div>
+
+          <div class="action-block">
+            <div class="action-header"><span>⚡</span><span class="action-label">Toma acción</span></div>
+            <ul class="action-steps">
+              <li><span class="step-num">1</span> Escribe tus 5 valores reales. No los que quedan bien, los que vives</li>
+              <li><span class="step-num">2</span> Identifica 2-3 rituales naturales que ya tienes y que puedes mostrar en tu contenido</li>
+              <li><span class="step-num">3</span> Elige tu color de acento. Mira qué no está usando nadie en tu nicho</li>
+              <li><span class="step-num">4</span> Escribe en 3 párrafos tu historia de transformación: antes, el punto de inflexión, y ahora</li>
+              <li><span class="step-num">5</span> Busca 3-5 marcas personales de referencia en tu sector. Analiza qué elementos usan y cuáles no usa nadie aún</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="next-section">
+      <div class="next-btn" onclick="showPage('page2', document.querySelectorAll('.nav-item')[2])">
+        <div><span class="next-btn-label">Siguiente página</span><span class="next-btn-title">🎬 Tengo canal, quiero mejorar</span></div>
+        <span class="next-arrow">→</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 2 -->
+  <div class="page" id="page2">
+    <div class="content-header">
+      <div class="breadcrumb">
+        <span onclick="showPage('home', document.querySelectorAll('.nav-item')[0])">Creator Hub</span>
+        <span>›</span><span>🎬 Tengo canal, quiero mejorar</span>
+      </div>
+      <h1>🎬 Tengo canal, quiero mejorar</h1>
+      <p>El 80% de la retención se juega en el guion. Aquí están las herramientas para que la gente se quede y vuelva.</p>
+    </div>
+    <div class="content-index">
+      <span>En esta página:</span>
+      <div class="index-link" onclick="openSection('s2-1')">CTR y retención</div>
+      <div class="index-link" onclick="openSection('s2-2')">El Hook</div>
+      <div class="index-link" onclick="openSection('s2-3')">Retención a lo largo del vídeo</div>
+      <div class="index-link" onclick="openSection('s2-4')">Guion y estructura</div>
+      <div class="index-link" onclick="openSection('s2-5')">Edición</div>
+    </div>
+    <div class="sections">
+
+      <div class="section" id="s2-1">
+        <div class="section-header" onclick="toggleSection('s2-1')">
+          <span class="section-toggle">▶</span><span class="section-icon">📊</span>
+          <span class="section-title">Las dos métricas que determinan si un vídeo funciona</span>
+        </div>
+        <div class="section-body">
+          <div class="concept-title">Por qué YouTube premia la retención</div>
+          <p>YouTube gana dinero con anuncios. Para maximizar ingresos necesita que la gente pase el mayor tiempo posible en la plataforma. Por eso solo distribuye los vídeos que mantienen a la gente dentro. <strong>Sus incentivos y los tuyos son los mismos.</strong></p>
+          <div class="metrics-row">
+            <div class="metric-card">
+              <div class="metric-name">CTR</div>
+              <div class="metric-value">Click-Through Rate</div>
+              <div class="metric-desc">% de personas que ven tu miniatura y hacen clic. Mide qué tan atractiva es tu promesa desde fuera.</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-name">AVD</div>
+              <div class="metric-value">Avg. View Duration</div>
+              <div class="metric-desc">Tiempo medio que pasa cada espectador en tu vídeo. Mide si lo que hay dentro cumple la promesa.</div>
+            </div>
+          </div>
+          <div class="highlight"><strong>Las dos se necesitan mutuamente.</strong> CTR alto + AVD bajo = clickbait. CTR bajo + AVD alto = buen vídeo que nadie ve. Necesitas las dos.</div>
+
+          <div class="concept-title">Los dos momentos críticos de abandono</div>
+          <p><strong>Primeros 30 segundos:</strong> la persona decide si el vídeo le va a dar lo que buscaba. Si tardas en llegar al punto o no cumples la promesa de la miniatura, se va.</p>
+          <p><strong>A lo largo del vídeo:</strong> el aburrimiento. Ocurre cuando hay poca densidad de valor, ritmo lento o tono monótono.</p>
+
+          <div class="concept-title">Cómo leer tus gráficas de retención</div>
+          <ul class="content-list">
+            <li><strong>Caída fuerte en primeros 30s</strong> — problema de hook o de promesa no cumplida</li>
+            <li><strong>Caída sostenida a lo largo del vídeo</strong> — problema de densidad de valor o ritmo</li>
+            <li><strong>Picos de retención</strong> — la gente vuelve a ver ese momento. Replicarlo</li>
+            <li><strong>Valles bruscos</strong> — suelen ser promociones o anuncios. La gente los salta</li>
+          </ul>
+          <div class="highlight highlight-green"><strong>Benchmark:</strong> mantener al 70% de los espectadores en los primeros 30 segundos está bien. Si no llegas a eso, el hook necesita trabajo urgente.</div>
+
+          <div class="action-block">
+            <div class="action-header"><span>⚡</span><span class="action-label">Toma acción</span></div>
+            <ul class="action-steps">
+              <li><span class="step-num">1</span> Abre YouTube Studio y revisa la gráfica de retención de tus últimos 3 vídeos</li>
+              <li><span class="step-num">2</span> Identifica: ¿dónde cae la gente en los primeros 30 segundos?</li>
+              <li><span class="step-num">3</span> Identifica: ¿hay algún momento del vídeo donde la gente vuelve? ¿Qué está pasando ahí?</li>
+              <li><span class="step-num">4</span> Diagnostica si tienes problema de CTR, de AVD, o de ambos</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="s2-2">
+        <div class="section-header" onclick="toggleSection('s2-2')">
+          <span class="section-toggle">▶</span><span class="section-icon">🎣</span>
+          <span class="section-title">El Hook: los primeros 30-40 segundos lo son todo</span>
+        </div>
+        <div class="section-body">
+          <div class="concept-title">Qué tiene que hacer un buen hook</div>
+          <p>Un hook tiene que cumplir tres objetivos mínimos al mismo tiempo. Sin los tres, el vídeo pierde espectadores en los primeros segundos.</p>
+          <div class="formula">REITERAR LA PROMESA · CREDIBILIDAD · PROMESA EXPLÍCITA</div>
+          <p><strong>1. Reiterar lo que dice la miniatura o el título:</strong> la primera frase del vídeo tiene que confirmar a la persona que está en el sitio correcto.</p>
+          <p><strong>2. Credibilidad:</strong> una frase rápida que responda a "¿por qué tengo que escuchar a esta persona?" Puede ser un resultado, una experiencia, un dato.</p>
+          <p><strong>3. Promesa explícita:</strong> "en este vídeo te voy a enseñar X". Esta frase ancla al espectador.</p>
+          <div class="highlight">
+            <strong>Errores más comunes en el hook:</strong>
+            <br>— Agradecer las suscripciones antes de aportar valor
+            <br>— Presentarte extensamente antes de ir al grano
+            <br>— Revelar el punto más importante en los primeros 30 segundos
+            <br>— No cumplir lo que prometía la miniatura
+          </div>
+
+          <div class="concept-title">La capacidad de atención es de 40 segundos</div>
+          <p>Desde 2004, la capacidad de atención media ha bajado de 2 minutos a 40 segundos. Si en ese tiempo no has enganchado a alguien que no te conoce, se va. Excepciones: superfans, audiencia mayor, o carisma natural excepcional.</p>
+
+          <div class="action-block">
+            <div class="action-header"><span>⚡</span><span class="action-label">Toma acción</span></div>
+            <ul class="action-steps">
+              <li><span class="step-num">1</span> Escribe el hook de tu próximo vídeo con los tres elementos: promesa + credibilidad + promesa explícita</li>
+              <li><span class="step-num">2</span> Dilo en voz alta y mide cuánto dura. Si supera 40 segundos, recórtalo</li>
+              <li><span class="step-num">3</span> Revisa el hook de tus últimos 3 vídeos: ¿cumplen los tres elementos?</li>
+              <li><span class="step-num">4</span> Estudia los hooks de 5 vídeos que hayas visto completos. ¿Qué tienen en común?</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="s2-3">
+        <div class="section-header" onclick="toggleSection('s2-3')">
+          <span class="section-toggle">▶</span><span class="section-icon">🔄</span>
+          <span class="section-title">Retención a lo largo del vídeo: rehooks, historias e IPM</span>
+        </div>
+        <div class="section-body">
+          <div class="concept-title">Por qué el trabajo no termina después del hook</div>
+          <p>Que alguien pase el hook no significa que se quede 20 minutos. La atención fluctúa. Necesitas herramientas para renovarla a lo largo del vídeo.</p>
+
+          <div class="concept-title">Rehooks: renovar el interés cada pocos minutos</div>
+          <p>Son frases que abren una nueva pregunta en la mente del espectador y le dan una razón para quedarse un poco más.</p>
+          <ul class="content-list">
+            <li>"La gente más ambiciosa comete siempre el mismo error" → ¿cuál es?</li>
+            <li>"Esta institución tiene una forma de poner a prueba a sus estudiantes que nadie conoce" → ¿cuál?</li>
+            <li>"Os voy a contar por qué dejé X después de 10 años" → ¿por qué?</li>
+          </ul>
+          <p>La clave: <strong>no reveles inmediatamente lo que viene después.</strong> Si dices "el punto más importante es X" y lo explicas enseguida, has matado la retención del resto del vídeo.</p>
+
+          <div class="concept-title">Historias: la herramienta de retención más poderosa</div>
+          <p>Las historias activan más áreas cerebrales, generan emoción y hacen que la información se recuerde mejor. Lo que diferencia tu vídeo de otro con la misma información son tus historias.</p>
+          <ul class="content-list">
+            <li>Ponlas detrás de un rehook para maximizar el impacto</li>
+            <li>Úsalas para ilustrar un principio sin explicarlo directamente</li>
+            <li>Apunta a 2-3 historias por vídeo como mínimo</li>
+            <li>No te pases: si todo es historia y nunca llegas al punto, la gente lo aprende y pierde interés</li>
+          </ul>
+
+          <div class="concept-title">IPM: Insights Por Minuto</div>
+          <p>La densidad de valor de tu vídeo. Cada insight genera un pico de dopamina en el espectador: ese momento "ajá" de entender algo que no había entendido antes. Cuanto más generes esos momentos, más valor percibido tiene tu vídeo.</p>
+          <ul class="content-list">
+            <li><strong>Modelos únicos:</strong> explica conceptos conocidos con un marco que solo tú usas</li>
+            <li><strong>Datos y estudios:</strong> citar evidencia hace que el espectador sienta que está aprendiendo algo sólido</li>
+            <li><strong>Ejemplos de personas que tu audiencia admira:</strong> si tu audiencia admira a alguien, usarlo como ejemplo aumenta el engagement</li>
+            <li><strong>Secciones aplicables:</strong> después de cada punto teórico, explica cómo aplicarlo. La gente vuelve a esos momentos más tarde</li>
+          </ul>
+
+          <div class="action-block">
+            <div class="action-header"><span>⚡</span><span class="action-label">Toma acción</span></div>
+            <ul class="action-steps">
+              <li><span class="step-num">1</span> En tu próximo guion, escribe al menos 3 rehooks distribuidos a lo largo del vídeo</li>
+              <li><span class="step-num">2</span> Por cada punto del vídeo, añade una historia que lo ilustre sin explicarlo directamente</li>
+              <li><span class="step-num">3</span> Al final de cada sección, añade un bloque de "cómo aplicar esto" con pasos concretos</li>
+              <li><span class="step-num">4</span> Pasa el guion terminado por IA y pídele que identifique las secciones aburridas o sin valor real</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="s2-4">
+        <div class="section-header" onclick="toggleSection('s2-4')">
+          <span class="section-toggle">▶</span><span class="section-icon">✍️</span>
+          <span class="section-title">Guion y estructura</span>
+        </div>
+        <div class="section-body">
+          <div class="concept-title">El guion hace el 80% del trabajo</div>
+          <p>Si el guion no retiene, ninguna edición lo salva. La edición es un bonus, no el núcleo.</p>
+          <div class="niche-note">
+            <span class="niche-note-icon">◆</span>
+            <span>Esto aplica específicamente a <strong>canales educativos</strong>: aquellos donde alguien enseña algo frente a cámara. En entretenimiento puro, gaming o reacción, el peso del guion es menor y la edición cobra más protagonismo.</span>
+          </div>
+
+          <div class="concept-title">Estructura: las 3 Ps</div>
+          <p>Para cada punto del vídeo, aplica este esquema:</p>
+          <ul class="content-list">
+            <li><strong>Promise (Promesa)</strong> — por qué le importa esto a la audiencia</li>
+            <li><strong>Progress (Desarrollo)</strong> — el contenido que la lleva de A a B</li>
+            <li><strong>Payoff (Resultado)</strong> — el takeaway, lo que se lleva</li>
+          </ul>
+          <p>La estructura completa de un vídeo: hook → punto 1 (3Ps) → rehook → punto 2 (3Ps) → rehook → punto 3 (3Ps) → outro.</p>
+
+          <div class="concept-title">El outro: no lo desperdicies</div>
+          <p>Poca gente llega al final, pero los que llegan están en el mejor momento para seguir viéndote.</p>
+          <ul class="content-list">
+            <li>Evita el lenguaje de cierre: "por último", "finalmente", "para terminar". En cuanto la gente huele el final, se va</li>
+            <li>Apunta al siguiente vídeo lógico: el que vería alguien que acaba de ver este</li>
+          </ul>
+
+          <div class="action-block">
+            <div class="action-header"><span>⚡</span><span class="action-label">Toma acción</span></div>
+            <ul class="action-steps">
+              <li><span class="step-num">1</span> Escribe tu próximo guion con la estructura completa: hook → puntos con 3Ps → outro</li>
+              <li><span class="step-num">2</span> Elimina cualquier frase que indique que el vídeo se acaba antes del outro</li>
+              <li><span class="step-num">3</span> Al final, añade una referencia clara al siguiente vídeo relacionado</li>
+              <li><span class="step-num">4</span> Lee el guion en voz alta. Si te aburres en algún punto, la audiencia también lo hará</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="s2-5">
+        <div class="section-header" onclick="toggleSection('s2-5')">
+          <span class="section-toggle">▶</span><span class="section-icon">✂️</span>
+          <span class="section-title">Edición: qué necesitas realmente</span>
+          <span class="section-coming">Próximamente</span>
+        </div>
+        <div class="section-body">
+          <p style="color: var(--text-dim); font-size: 13px; margin-bottom: 12px;">Esta sección está en desarrollo. Cubrirá:</p>
+          <ul class="content-list">
+            <li>Qué edición mínima necesitas en un canal educativo</li>
+            <li>Cómo editar el hook para que tenga más ritmo que el resto</li>
+            <li>Show, don't tell: mostrar lo que describes en pantalla</li>
+            <li>Música, gráficos y cuándo usarlos</li>
+            <li>Lo que <strong>no</strong> necesitas aunque lo veas en otros canales</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+    <div class="next-section">
+      <div class="next-btn" onclick="showPage('page3', document.querySelectorAll('.nav-item')[3])">
+        <div><span class="next-btn-label">Siguiente página</span><span class="next-btn-title">📈 Quiero crecer y monetizar</span></div>
+        <span class="next-arrow">→</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 3 -->
+  <div class="page" id="page3">
+    <div class="content-header">
+      <div class="breadcrumb">
+        <span onclick="showPage('home', document.querySelectorAll('.nav-item')[0])">Creator Hub</span>
+        <span>›</span><span>📈 Quiero crecer y monetizar</span>
+      </div>
+      <h1>📈 Quiero crecer y monetizar</h1>
+      <p>Ya tienes base. Ahora necesitas un sistema: ideas con potencial real, menos errores y monetización que no dependa solo de AdSense.</p>
+    </div>
+    <div class="content-index">
+      <span>En esta página:</span>
+      <div class="index-link" onclick="openSection('s3-1')">Las fases de crecimiento</div>
+      <div class="index-link" onclick="openSection('s3-2')">Ideas con potencial de banger</div>
+      <div class="index-link" onclick="openSection('s3-3')">El packaging</div>
+      <div class="index-link" onclick="openSection('s3-4')">Monetización</div>
+    </div>
+    <div class="sections">
+
+      <div class="section" id="s3-1">
+        <div class="section-header" onclick="toggleSection('s3-1')">
+          <span class="section-toggle">▶</span><span class="section-icon">🗺️</span>
+          <span class="section-title">Las tres fases de crecimiento: dónde estás y qué hacer</span>
+        </div>
+        <div class="section-body">
+          <div class="phase-badge phase-green">0 → 1.000 suscriptores</div>
+          <div class="concept-title">La fase más dura no por habilidad, sino por resiliencia</div>
+          <p>La mayoría no llega a 1.000 suscriptores porque lo deja antes de tiempo, no porque lo haga mal. Los datos de YouTube indican que llegar a 1.000 subs publicando semanalmente lleva entre 70 y 150 vídeos. Más de un año.</p>
+          <p><strong>Lo que más importa en esta fase:</strong> consistencia y frecuencia. Publica al menos una vez a la semana. La calidad viene de la cantidad de repeticiones.</p>
+          <ul class="content-list">
+            <li>No cambies de nicho cada 2-3 vídeos. Da al menos 10 vídeos antes de pivotar</li>
+            <li>No te disperses en otras plataformas todavía</li>
+            <li>No esperes a tener audiencia para pensar en monetización. Con 100 seguidores ya puedes probar ofertas</li>
+          </ul>
+
+          <div class="divider"></div>
+
+          <div class="phase-badge phase-yellow">1.000 → 10.000 suscriptores</div>
+          <div class="concept-title">La fase donde el packaging lo es todo</div>
+          <p>En esta fase la habilidad técnica importa menos que saber presentar tus vídeos. <strong>El título y la miniatura son la primera barrera.</strong></p>
+          <p>Identifica tus vídeos outliers: los que han superado significativamente tu media. Ahí hay algo que funciona. Conviértelo en tu Video Recipe y repítelo con variaciones.</p>
+          <ul class="content-list">
+            <li>Empieza a construir tu lista de email. No esperes. Es el activo más valioso a largo plazo</li>
+            <li>No aceptes brand deals todavía: añaden trabajo y distracción</li>
+            <li>Aplica la regla del 80%: ¿el 80% de quien vio tu último vídeo querría ver el siguiente?</li>
+          </ul>
+
+          <div class="divider"></div>
+
+          <div class="phase-badge phase-blue">10.000 → 100.000 suscriptores</div>
+          <div class="concept-title">Subir el view floor y escalar</div>
+          <p>El objetivo es subir el <strong>view floor</strong>: el mínimo de views que recibes por día aunque no hayas subido nada.</p>
+          <ul class="content-list">
+            <li>Más bangers: ideas con potencial real de explosión</li>
+            <li>Menos flops: diagnostica si el problema es CTR, retención o concepto</li>
+            <li>Reinvierte: empieza a aceptar brand deals y usa ese dinero para comprar tiempo</li>
+            <li>Haz un time audit: identifica qué tareas puedes eliminar, simplificar, automatizar o delegar</li>
+          </ul>
+
+          <div class="action-block">
+            <div class="action-header"><span>⚡</span><span class="action-label">Toma acción</span></div>
+            <ul class="action-steps">
+              <li><span class="step-num">1</span> Identifica en qué fase estás ahora mismo</li>
+              <li><span class="step-num">2</span> Escribe las 2-3 cosas que más importan en tu fase actual (no las de la siguiente)</li>
+              <li><span class="step-num">3</span> Si ya tienes vídeos publicados, identifica tus outliers y analiza qué tienen en común</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="s3-2">
+        <div class="section-header" onclick="toggleSection('s3-2')">
+          <span class="section-toggle">▶</span><span class="section-icon">💥</span>
+          <span class="section-title">Ideas con potencial de banger: cómo encontrarlas y filtrarlas</span>
+        </div>
+        <div class="section-body">
+          <div class="concept-title">La idea importa más que la ejecución</div>
+          <p>Un vídeo bien ejecutado con una mala idea no funciona. Un vídeo medianamente ejecutado con una gran idea puede explotar. <strong>La ideación es la habilidad más importante a este nivel.</strong></p>
+
+          <div class="concept-title">Las tres señales de una buena idea</div>
+          <ul class="content-list">
+            <li><strong>Prueba de éxito previo:</strong> alguna versión de esta idea ya ha funcionado para alguien</li>
+            <li><strong>TAM alto (mercado potencial amplio):</strong> no solo tus suscriptores podrían interesarse, sino cualquiera que busque ese tema</li>
+            <li><strong>Emoción que hace clicar:</strong> genera curiosidad, deseo o miedo. Si no activa ninguno de los tres, no hagas el vídeo</li>
+          </ul>
+
+          <div class="concept-title">El filtro de ideas</div>
+          <ul class="content-list">
+            <li>¿Es viable producirlo con mis recursos actuales?</li>
+            <li>¿Alguien que no me conoce de nada querría verlo?</li>
+            <li>¿El 80% de mi audiencia actual lo vería?</li>
+            <li>¿Tiene potencial de superar mi media de views?</li>
+            <li>¿Hay evidencia de que algo similar ha funcionado?</li>
+            <li>¿Puedo hacer una miniatura y título fuertes para esto?</li>
+            <li>¿Puedo hacerlo mío, no solo copiarlo?</li>
+          </ul>
+          <div class="highlight"><strong>La prueba de éxito previo no significa copiar.</strong> Significa que si un concepto ya ha generado muchas views en otro canal, hay demanda real. Tu trabajo es filtrarlo por tu Video Recipe y hacerlo tuyo.</div>
+
+          <div class="concept-title">Cómo generar ideas consistentemente</div>
+          <ul class="content-list">
+            <li>Guarda en un doc todo lo que te llame la atención, aunque no sea de tu nicho</li>
+            <li>Cada semana, siéntate 20-30 minutos solo a generar ideas. Hazlo un hábito</li>
+            <li>Busca outliers: vídeos que han superado con creces la media del canal que los publicó</li>
+            <li>Usa IA para generar variaciones de títulos a partir de lo que ya has encontrado</li>
+          </ul>
+
+          <div class="action-block">
+            <div class="action-header"><span>⚡</span><span class="action-label">Toma acción</span></div>
+            <ul class="action-steps">
+              <li><span class="step-num">1</span> Crea un doc o base de datos donde guardar ideas. Empieza hoy</li>
+              <li><span class="step-num">2</span> Busca 5 vídeos outliers de tu nicho (o adyacente) que hayan explotado. Analiza qué tienen en común</li>
+              <li><span class="step-num">3</span> Para tu próxima idea, pásala por los 7 filtros de arriba. Si no pasa al menos 5, no la hagas</li>
+              <li><span class="step-num">4</span> Planifica 8 ideas: testables, con potencial de views, y ejecutables con tus recursos actuales</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="s3-3">
+        <div class="section-header" onclick="toggleSection('s3-3')">
+          <span class="section-toggle">▶</span><span class="section-icon">🖼️</span>
+          <span class="section-title">El packaging: títulos y miniaturas que hacen clicar</span>
+        </div>
+        <div class="section-body">
+          <div class="concept-title">Por qué el packaging es la habilidad que más te hace crecer en 1K-10K</div>
+          <p>No importa lo bueno que sea el vídeo si nadie clica. El packaging es la puerta.</p>
+
+          <div class="concept-title">El título tiene dos trabajos</div>
+          <ul class="content-list">
+            <li>Captar la atención y despertar la curiosidad</li>
+            <li>Decirle a la audiencia qué va a recibir</li>
+          </ul>
+          <p>Un buen título abre un loop en el cerebro del espectador que solo se cierra viendo el vídeo. Genera curiosidad, deseo o miedo.</p>
+
+          <div class="concept-title">El proceso de 30 títulos</div>
+          <p>Genera al menos 30 variaciones de título por vídeo. Tu primera idea raramente es la mejor.</p>
+          <ul class="content-list">
+            <li>5 min: ideas propias desde cero</li>
+            <li>5 min: títulos de tus 5 canales de referencia que puedas adaptar</li>
+            <li>5 min: outliers de tu tema en YouTube</li>
+            <li>5 min: pasa todo a IA y pide variaciones</li>
+          </ul>
+          <div class="highlight"><strong>El packaging es la inversión de tiempo con mayor retorno.</strong> Pensar bien el título y la miniatura es lo que más tiempo ahorra a largo plazo: un mal packaging hace inútil todo el trabajo de producción.</div>
+
+          <div class="concept-title">La miniatura: simple, clara, legible en pequeño</div>
+          <ul class="content-list">
+            <li>Sujeto principal claro (tú o el tema del vídeo)</li>
+            <li>Regla de tercios: sujeto en el centro o en un tercio lateral</li>
+            <li>Colores con contraste alto entre sujeto y fondo</li>
+            <li>Test de 2 segundos: ¿se entiende de qué va en 2 segundos a tamaño reducido?</li>
+            <li>Busca miniaturas de outliers de tu tema para ver qué composiciones funcionan</li>
+          </ul>
+
+          <div class="action-block">
+            <div class="action-header"><span>⚡</span><span class="action-label">Toma acción</span></div>
+            <ul class="action-steps">
+              <li><span class="step-num">1</span> Para tu próximo vídeo, aplica el proceso de 30 títulos antes de elegir uno</li>
+              <li><span class="step-num">2</span> Busca 3 miniaturas de vídeos con muchas views en tu nicho. Analiza composición, colores y punto focal</li>
+              <li><span class="step-num">3</span> Diseña tu miniatura con Canva. Test de 2 segundos: pídele a alguien que no lo ha visto que te diga de qué trata</li>
+              <li><span class="step-num">4</span> Revisa tus últimas 5 miniaturas: ¿tienen suficiente contraste? ¿Se entienden a tamaño pequeño?</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="s3-4">
+        <div class="section-header" onclick="toggleSection('s3-4')">
+          <span class="section-toggle">▶</span><span class="section-icon">💰</span>
+          <span class="section-title">Monetización: más allá de AdSense</span>
+        </div>
+        <div class="section-body">
+          <div class="concept-title">AdSense no es suficiente para vivir de YouTube (en la mayoría de casos)</div>
+          <p>YouTube paga entre 55-60% de los ingresos publicitarios. El RPM (ingresos por cada 1.000 visualizaciones) varía enormemente por nicho y audiencia. Y lo más importante: <strong>depende completamente del algoritmo.</strong> Si el algoritmo cambia, tus ingresos cambian de un día para otro.</p>
+
+          <div class="concept-title">Las fuentes de ingresos reales de un creador</div>
+          <ul class="content-list">
+            <li><strong>AdSense:</strong> ingresos pasivos pero volátiles. Vídeos de +8 min permiten anuncios mid-roll</li>
+            <li><strong>Afiliados:</strong> comisión por recomendar productos que ya usas. Los mejores programas están fuera de Amazon (15-50% de comisión)</li>
+            <li><strong>Brand deals:</strong> el ingreso más alto pero el más intensivo en trabajo. No antes de 10K</li>
+            <li><strong>Productos digitales:</strong> plantillas, guías, recursos. Baja barrera de entrada, ayudan a crecer la lista de email</li>
+            <li><strong>Consultoría / servicios:</strong> no escala con tiempo, pero no necesita audiencia grande para ser rentable</li>
+            <li><strong>Programas y cursos:</strong> alta inversión inicial, alto retorno si se hace bien</li>
+          </ul>
+          <div class="highlight highlight-blue"><strong>La lista de email es el activo más valioso.</strong> Si YouTube desaparece mañana, la lista de email es tuya. Empieza a construirla desde el primer día con un recurso gratuito. Un suscriptor de email vale 10 suscriptores de YouTube.</div>
+
+          <div class="concept-title">El orden correcto</div>
+          <p>No esperes a tener audiencia para monetizar. Con 100 seguidores ya puedes probar tu primera oferta. El error no es monetizar pronto, es no monetizar nunca esperando el momento perfecto.</p>
+
+          <div class="action-block">
+            <div class="action-header"><span>⚡</span><span class="action-label">Toma acción</span></div>
+            <ul class="action-steps">
+              <li><span class="step-num">1</span> Identifica 2-3 productos o servicios que ya usas y que tengan programa de afiliados con buena comisión</li>
+              <li><span class="step-num">2</span> Crea un recurso gratuito (checklist, guía, plantilla) relacionado con tu nicho y úsalo para captar emails</li>
+              <li><span class="step-num">3</span> Piensa qué problema de tu audiencia podrías resolver con un servicio o consultoría. ¿Pagarían por eso?</li>
+              <li><span class="step-num">4</span> Haz un time audit de tu proceso: ¿qué puedes eliminar, simplificar, automatizar o delegar?</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="next-section">
+      <div class="next-btn" onclick="showPage('home', document.querySelectorAll('.nav-item')[0])">
+        <div><span class="next-btn-label">Volver al inicio</span><span class="next-btn-title">⬜ Creator Hub</span></div>
+        <span class="next-arrow">↑</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECURSOS -->
+  <div class="page" id="recursos">
+    <div class="content-header">
+      <div class="breadcrumb">
+        <span onclick="showPage('home', document.querySelectorAll('.nav-item')[0])">Creator Hub</span>
+        <span>›</span><span>📎 Recursos y fuentes</span>
+      </div>
+      <h1>📎 Recursos y fuentes</h1>
+      <p>Plantillas, canales de referencia y materiales de apoyo para aplicar lo que has aprendido.</p>
+    </div>
+    <div class="recursos-section">
+
+      <div class="recursos-group">
+        <div class="recursos-group-title">📄 Plantillas descargables</div>
+        <div class="resource-item">
+          <span class="resource-icon">🎯</span>
+          <div class="resource-info">
+            <div class="resource-name">Define tu avatar</div>
+            <p class="resource-desc">Guía completa de preguntas para definir con precisión a la persona a la que le habla todo tu contenido: identidad, motivaciones, miedos, deseos y cómo quiere relacionarse con un creador.</p>
+          </div>
+          <a class="resource-link" href="Define_tu_avatar.pdf" download>↓ Descargar</a>
+        </div>
+        <div class="resource-item">
+          <span class="resource-icon">🔽</span>
+          <div class="resource-info">
+            <div class="resource-name">Desarrolla tus audiencias</div>
+            <p class="resource-desc">Tabla para mapear tus tres niveles de audiencia: top, middle y bottom of funnel. Define quién es cada una, qué problemas tienen y qué aspiran a conseguir.</p>
+          </div>
+          <a class="resource-link" href="Desarrolla_tus_audiencias.pdf" download>↓ Descargar</a>
+        </div>
+      </div>
+
+      <div class="recursos-group">
+        <div class="recursos-group-title">🎥 Canales de referencia</div>
+        <div class="resource-item">
+          <span class="resource-icon">▶️</span>
+          <div class="resource-info">
+            <div class="resource-name">Clara Carmona</div>
+            <p class="resource-desc">Estrategia de canal educativo en YouTube. Especializada en canales donde alguien enseña algo con el objetivo de monetizar con infoproductos o servicios.</p>
+          </div>
+          <a class="resource-link" href="https://www.youtube.com/@ClaraCarmonaBusiness" target="_blank">→ Canal</a>
+        </div>
+        <div class="resource-item">
+          <span class="resource-icon">▶️</span>
+          <div class="resource-info">
+            <div class="resource-name">Aprilynne Alter</div>
+            <p class="resource-desc">Sistemas de crecimiento en YouTube: desde el primer vídeo hasta los 100K. Fuerte en ideación, packaging y monetización sostenible.</p>
+          </div>
+          <a class="resource-link" href="https://www.youtube.com/@AprilynneAlter" target="_blank">→ Canal</a>
+        </div>
+      </div>
+
+      <div class="recursos-group">
+        <div class="recursos-group-title">🔜 Próximamente</div>
+        <div class="resource-item">
+          <span class="resource-icon">📋</span>
+          <div class="resource-info">
+            <div class="resource-name">Plantilla: filtro de ideas de vídeo</div>
+            <p class="resource-desc">Los 7 criterios para evaluar si una idea tiene potencial real antes de invertir tiempo en producirla.</p>
+          </div>
+          <span class="resource-badge">En desarrollo</span>
+        </div>
+        <div class="resource-item">
+          <span class="resource-icon">📋</span>
+          <div class="resource-info">
+            <div class="resource-name">Plantilla: guion de vídeo (estructura 3Ps)</div>
+            <p class="resource-desc">Documento base para construir el guion de un vídeo educativo con hook, puntos, rehooks y outro.</p>
+          </div>
+          <span class="resource-badge">En desarrollo</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<script>
+  function showPage(pageId, navEl) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(pageId).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (navEl) navEl.classList.add('active');
+    window.scrollTo(0, 0);
+  }
+  function toggleSection(id) {
+    document.getElementById(id).classList.toggle('open');
+  }
+  function openSection(id) {
+    const section = document.getElementById(id);
+    section.classList.add('open');
+    setTimeout(() => { section.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+  }
+</script>
+</body>
+</html>
